@@ -1067,7 +1067,6 @@ CGPathRef CGPathCreateDisclosureIndicatorPath(CGPoint arrowPointFront, CGFloat h
 @synthesize title = _title;
 @synthesize representedObject = _representedObject;
 @synthesize font = _font;
-@synthesize tintColor = _tintColor;
 @synthesize textColor = _textColor;
 @synthesize highlightedTextColor = _highlightedTextColor;
 @synthesize accessoryType = _accessoryType;
@@ -1083,14 +1082,12 @@ CGPathRef CGPathCreateDisclosureIndicatorPath(CGPoint arrowPointFront, CGFloat h
 }
 
 - (instancetype)initWithTitle:(NSString *)aTitle representedObject:(id)object font:(UIFont *)aFont {
-	
 	if ((self = [super init])){
 		
 		_title = [aTitle copy];
 		_representedObject = object;
 		
 		_font = aFont;
-		_tintColor = [TIToken blueTintColor];
 		_textColor = [UIColor blackColor];
 		_highlightedTextColor = [UIColor whiteColor];
 		
@@ -1141,16 +1138,6 @@ CGPathRef CGPathCreateDisclosureIndicatorPath(CGPoint arrowPointFront, CGFloat h
 	}
 }
 
-- (void)setTintColor:(UIColor *)newTintColor {
-	
-	if (!newTintColor) newTintColor = [TIToken blueTintColor];
-	
-	if (_tintColor != newTintColor){
-		_tintColor = newTintColor;
-		[self setNeedsDisplay];
-	}
-}
-
 - (void)setAccessoryType:(TITokenAccessoryType)type {
 	
 	if (_accessoryType != type){
@@ -1167,20 +1154,6 @@ CGPathRef CGPathCreateDisclosureIndicatorPath(CGPoint arrowPointFront, CGFloat h
 		[self sizeToFit];
         [self setNeedsDisplay];
 	}
-}
-
-#pragma Tint Color Convenience
-
-+ (UIColor *)blueTintColor {
-	return [UIColor colorWithRed:0.216 green:0.373 blue:0.965 alpha:1];
-}
-
-+ (UIColor *)redTintColor {
-	return [UIColor colorWithRed:1 green:0.15 blue:0.15 alpha:1];
-}
-
-+ (UIColor *)greenTintColor {
-	return [UIColor colorWithRed:0.333 green:0.741 blue:0.235 alpha:1];
 }
 
 #pragma mark Layout
@@ -1352,8 +1325,8 @@ CGPathRef CGPathCreateDisclosureIndicatorPath(CGPoint arrowPointFront, CGFloat h
 
 - (BOOL)getTintColorRed:(CGFloat *)red green:(CGFloat *)green blue:(CGFloat *)blue alpha:(CGFloat *)alpha {
 	
-	CGColorSpaceModel colorSpaceModel = CGColorSpaceGetModel(CGColorGetColorSpace(_tintColor.CGColor));
-	const CGFloat * components = CGColorGetComponents(_tintColor.CGColor);
+	CGColorSpaceModel colorSpaceModel = CGColorSpaceGetModel(CGColorGetColorSpace(self.tintColor.CGColor));
+	const CGFloat * components = CGColorGetComponents(self.tintColor.CGColor);
 	
 	if (colorSpaceModel == kCGColorSpaceModelMonochrome || colorSpaceModel == kCGColorSpaceModelRGB){
 		

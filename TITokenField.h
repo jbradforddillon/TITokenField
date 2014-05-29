@@ -132,16 +132,11 @@ typedef enum {
 @property (nonatomic, strong) UIFont * font;
 @property (nonatomic, strong) UIColor * textColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic, strong) UIColor * highlightedTextColor UI_APPEARANCE_SELECTOR;
-@property (nonatomic, strong) UIColor * tintColor UI_APPEARANCE_SELECTOR;
 @property (nonatomic, assign) TITokenAccessoryType accessoryType;
 @property (nonatomic, assign) CGFloat maxWidth;
 
 - (instancetype)initWithTitle:(NSString *)aTitle;
 - (instancetype)initWithTitle:(NSString *)aTitle representedObject:(id)object;
 - (instancetype)initWithTitle:(NSString *)aTitle representedObject:(id)object font:(UIFont *)aFont;
-
-+ (UIColor *)blueTintColor;
-+ (UIColor *)redTintColor;
-+ (UIColor *)greenTintColor;
 
 @end
