@@ -103,7 +103,7 @@
 		UITableViewController * tableViewController = [[UITableViewController alloc] initWithStyle:UITableViewStylePlain];
 		[tableViewController.tableView setDelegate:self];
 		[tableViewController.tableView setDataSource:self];
-		[tableViewController setContentSizeForViewInPopover:CGSizeMake(400, 400)];
+		[tableViewController setPreferredContentSize:CGSizeMake(400, 400)];
 		
 		_resultsTable = tableViewController.tableView;
 		
@@ -590,7 +590,8 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 			NSArray * titles = self.tokenTitles;
 			untokenized = [titles componentsJoinedByString:@", "];
 			
-			CGSize untokSize = [untokenized sizeWithFont:[UIFont systemFontOfSize:14]];
+			CGSize untokSize = [untokenized sizeWithAttributes:@{ NSFontAttributeName: [UIFont systemFontOfSize:14] }];
+            untokSize.width = ceilf(untokSize.width), untokSize.height = ceilf(untokSize.height);
 			CGFloat availableWidth = self.bounds.size.width - self.leftView.bounds.size.width - self.rightView.bounds.size.width;
 			
 			if (_tokens.count > 1 && untokSize.width > availableWidth){
@@ -1055,7 +1056,7 @@ NSString * const kTextHidden = @"\u200D"; // Zero-Width Joiner
 CGFloat const hTextPadding = 14;
 CGFloat const vTextPadding = 8;
 CGFloat const kDisclosureThickness = 2.5;
-UILineBreakMode const kLineBreakMode = UILineBreakModeTailTruncation;
+NSLineBreakMode const kLineBreakMode = NSLineBreakByTruncatingTail;
 
 @interface TIToken (Private)
 CGPathRef CGPathCreateTokenPath(CGSize size, BOOL innerPath);
@@ -1166,7 +1167,11 @@ CGPathRef CGPathCreateDisclosureIndicatorPath(CGPoint arrowPointFront, CGFloat h
 		accessoryWidth += floorf(hTextPadding / 2);
 	}
 	
-	CGSize titleSize = [_title sizeWithFont:_font forWidth:(_maxWidth - hTextPadding - accessoryWidth) lineBreakMode:kLineBreakMode];
+    NSMutableParagraphStyle *style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+    style.lineBreakMode = kLineBreakMode;
+    CGRect boundingRect = [_title boundingRectWithSize:CGSizeMake((_maxWidth - hTextPadding - accessoryWidth), CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{ NSFontAttributeName: _font, NSParagraphStyleAttributeName: style } context:nil];
+	CGSize titleSize = boundingRect.size;
+    titleSize.width = ceilf(titleSize.width), titleSize.height = ceilf(titleSize.height);
 	CGFloat height = floorf(titleSize.height + vTextPadding);
 	
     return (CGSize){MAX(floorf(titleSize.width + hTextPadding + accessoryWidth), height - 3), height};
@@ -1275,13 +1280,19 @@ CGPathRef CGPathCreateDisclosureIndicatorPath(CGPoint arrowPointFront, CGFloat h
 	
 	CGColorSpaceRelease(colorspace);
 	
-	CGSize titleSize = [_title sizeWithFont:_font forWidth:(_maxWidth - hTextPadding - accessoryWidth) lineBreakMode:kLineBreakMode];
+    NSMutableParagraphStyle *style = [[NSParagraphStyle defaultParagraphStyle] mutableCopy];
+    style.lineBreakMode = kLineBreakMode;
+    NSDictionary *attributes = @{ NSFontAttributeName: _font, NSParagraphStyleAttributeName: style };
+    CGRect boundingRect = [_title boundingRectWithSize:CGSizeMake((_maxWidth - hTextPadding - accessoryWidth), CGFLOAT_MAX) options:NSStringDrawingUsesLineFragmentOrigin attributes:attributes context:nil];
+	CGSize titleSize = boundingRect.size;
+    titleSize.width = ceilf(titleSize.width), titleSize.height = ceilf(titleSize.height);
+    
 	CGFloat vPadding = floor((self.bounds.size.height - titleSize.height) / 2);
 	CGFloat titleWidth = ceilf(self.bounds.size.width - hTextPadding - accessoryWidth);
 	CGRect textBounds = CGRectMake(floorf(hTextPadding / 2), vPadding - 1, titleWidth, floorf(self.bounds.size.height - (vPadding * 2)));
 	
 	CGContextSetFillColorWithColor(context, (drawHighlighted ? _highlightedTextColor : _textColor).CGColor);
-	[_title drawInRect:textBounds withFont:_font lineBreakMode:kLineBreakMode];
+	[_title drawInRect:textBounds withAttributes:attributes];
 }
 
 CGPathRef CGPathCreateTokenPath(CGSize size, BOOL innerPath) {
